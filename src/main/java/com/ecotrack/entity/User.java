@@ -43,6 +43,9 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "filled_form",columnDefinition ="boolean default false")
+    private boolean filledForm = false;
+
 
     @Type(io.hypersistence.utils.hibernate.type.json.JsonType.class)
     @Column(columnDefinition = "jsonb")
