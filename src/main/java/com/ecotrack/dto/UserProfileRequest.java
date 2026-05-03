@@ -13,4 +13,5 @@ public class UserProfileRequest {
     private Integer annualMileage;
     private String energySource;
     private Map<String, Object> preferences;
+    private boolean filled_form;
 }
