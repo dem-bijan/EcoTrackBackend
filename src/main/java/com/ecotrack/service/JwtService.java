@@ -11,18 +11,17 @@ public class JwtService {
 
     private final String SECRET_KEY = "EcoTrackSuperSecretMasterKeyThatYouMustNeverShareWithHackers123456";
 
-    public String generateToken( String email) {
+    public String generateToken(String email) {
         return Jwts.builder().subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000*60*60*24))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .signWith(getSignInKey())
                 .compact();
     }
 
-    private  SecretKey getSignInKey() {
+    private SecretKey getSignInKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
-
 
     public String extractUsername(String token) {
         return io.jsonwebtoken.Jwts.parser()
@@ -33,7 +32,7 @@ public class JwtService {
                 .getSubject();
     }
 
-    public boolean isTokenValid(String token , String userEmail) {
+    public boolean isTokenValid(String token, String userEmail) {
         final String username = extractUsername(token);
         return (username.equals(userEmail)) && !isTokenExpired(token);
     }
@@ -49,5 +48,13 @@ public class JwtService {
         return expiration.before(new java.util.Date());
     }
 
-
+    public String extractIssuedAt(String token) {
+        return io.jsonwebtoken.Jwts.parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getIssuedAt()
+                .getTime() + "";
+    }
 }
