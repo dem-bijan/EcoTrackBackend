@@ -1,6 +1,7 @@
 package com.ecotrack.config;
 
 import com.ecotrack.service.JwtService;
+import com.ecotrack.service.SessionService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,16 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
+    private final SessionService sessionService;
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        // Skip websocket/SockJS requests
+        return path.startsWith("/websocket");
+    }
 
     @Override
     protected void doFilterInternal(
@@ -42,6 +53,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if ( userEmail != null &&
             SecurityContextHolder.getContext().getAuthentication() == null) {
                 if (jwtService.isTokenValid(jwt, userEmail)){
+                    String issuedAt = jwtService.extractIssuedAt(jwt);
+
+                    if(sessionService.isTokenValidForSession(userEmail, issuedAt)) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userEmail, null, Collections.emptyList());
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                    else{
+                        SecurityContextHolder.clearContext();
+                    }
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userEmail,null, Collections.emptyList()
                     );
