@@ -21,7 +21,6 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
-    private final UserAchievementRepository userAchievementRepository;
 
     @Transactional
     public Activity logActivity(String email,Activity activity) {

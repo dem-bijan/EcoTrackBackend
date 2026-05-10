@@ -21,6 +21,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final SessionService sessionService;
 
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        // Skip websocket/SockJS requests
+        return path.startsWith("/websocket");
+    }
+
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
